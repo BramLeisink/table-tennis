@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Table Tennis Score Tracker</title>
+    <style>
+        /* CSS styles for the score tracker */
+        body {
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: calc(100vh - 45px);
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .player {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            width: 40%;
+            max-width: 300px;
+        }
+
+        h1 {
+            color: #333333;
+            margin-top: 0;
+        }
+
+        h2 {
+            color: #666666;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .score {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .score span {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+
+        .top-bar > h1 {
+            color: white;
+        }
+
+        .winner {
+            font-size: 24px;
+            font-weight: bold;
+            color: #009900;
+            margin-top: 20px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            height: 45px;
+            background-color: #333333;
+            color: #ffffff;
+        }
+
+        .reset-button {
+            background-color: #f5f5f5;
+            border: none;
+            color: #333333;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .player {
+                width: 80%;
+                max-width: none;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <h1>Table Tennis Score Tracker</h1>
+        <button id="resetButton" class="reset-button" onclick="resetScore()">Reset</button>
+    </div>
+
+    <div class="container">
+        <div class="player" id="player1" onclick="scorePoint('p1')">
+            <h2 onclick="renamePlayer(this)">Player 1</h2>
+            <div class="score">
+                <span id="p1Score">0</span>
+            </div>
+            <h2 id="p1Serve">Serving</h2>
+            <p id="p1Winner" class="winner"></p>
+        </div>
+
+        <div class="player" id="player2" onclick="scorePoint('p2')">
+            <h2 onclick="renamePlayer(this)">Player 2</h2>
+            <div class="score">
+                <span id="p2Score">0</span>
+            </div>
+            <h2 id="p2Serve">Not Serving</h2>
+            <p id="p2Winner" class="winner"></p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript code to handle score updates, serve indicator, and player renaming
+
+        // Initial scores
+        let p1Score = 0;
+        let p2Score = 0;
+        let p1Serves = true; // Player 1 serves first
+
+        // Update the score display
+        function updateScoreDisplay() {
+            document.getElementById("p1Score").textContent = p1Score;
+            document.getElementById("p2Score").textContent = p2Score;
+        }
+
+        // Update the serve indicator
+        function updateServeIndicator() {
+            const p1Serve = document.getElementById("p1Serve");
+            const p2Serve = document.getElementById("p2Serve");
+
+            if (p1Serves) {
+                p1Serve.textContent = "Serving";
+                p2Serve.textContent = "Not Serving";
+            } else {
+                p1Serve.textContent = "Not Serving";
+                p2Serve.textContent = "Serving";
+            }
+        }
+
+        // Check if a player has won the match
+        function checkForWinner() {
+            let winner = null;
+
+            if (p1Score >= 11 && p1Score - p2Score >= 2) {
+                winner = "Player 1";
+            } else if (p2Score >= 11 && p2Score - p1Score >= 2) {
+                winner = "Player 2";
+            }
+
+            if (winner) {
+                document.getElementById("player1").removeEventListener("click", scorePoint);
+                document.getElementById("player2").removeEventListener("click", scorePoint);
+                document.getElementById("p1Winner").textContent = winner + " wins!";
+                document.getElementById("p2Winner").textContent = winner + " wins!";
+            }
+        }
+
+        // Function to score a point for the player
+        function scorePoint(player) {
+            if (player === "p1") {
+                p1Score++;
+            } else if (player === "p2") {
+                p2Score++;
+            }
+
+            updateScoreDisplay();
+            checkForWinner();
+
+            if ((p1Score + p2Score) % 2 === 0) {
+                p1Serves = !p1Serves;
+                updateServeIndicator();
+            }
+        }
+
+        // Function to rename the player
+        function renamePlayer(element) {
+            const newName = prompt("Enter a new name for the player:");
+            if (newName) {
+                element.textContent = newName;
+            }
+        }
+
+        // Function to reset the score
+        function resetScore() {
+            if (p1Score === 0 && p2Score === 0) {
+                p1Serves = !p1Serves;
+                updateServeIndicator();
+                document.getElementById("resetButton").textContent = "Switch";
+            } else {
+                p1Score = 0;
+                p2Score = 0;
+                updateScoreDisplay();
+                document.getElementById("resetButton").textContent = "Reset";
+                document.getElementById("player1").addEventListener("click", scorePoint);
+                document.getElementById("player2").addEventListener("click", scorePoint);
+                document.getElementById("p1Winner").textContent = "";
+                document.getElementById("p2Winner").textContent = "";
+            }
+        }
+    </script>
+</body>
+
+</html>
